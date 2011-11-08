@@ -23,7 +23,6 @@ use Catalyst qw/
 /;
 
 extends 'Catalyst';
-with 'CatalystX::LeakChecker';
 
 our $VERSION = '0.01';
 

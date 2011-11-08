@@ -26,7 +26,14 @@ The root page (/)
 
 =cut
 
-sub index :Path :Args(0) { }
+sub index :Path :Args(0) {
+   my ( $self, $c ) = @_;
+   if ( $c->req->params->{nosubinclude} ) {
+      $c->stash( current_view => 'BareTT' );
+   } else {
+      $c->stash( current_view => 'TT' );
+   }
+}
 
 =head2 default
 
@@ -40,13 +47,28 @@ sub default :Path {
     $c->response->status(404);
 }
 
-=head2 end
+sub render : ActionClass('RenderView') { }
 
-Attempt to render a view, if needed.
+sub end : Private {
+  my ( $self, $c ) = @_;
+  $c->forward('render');
 
-=cut
+  use Scalar::Util 'weaken';
+  use Devel::Cycle 'find_cycle';
+  my @leaks;
+  my $weak_ctx = $c;
+  weaken $weak_ctx;
 
-sub end : ActionClass('RenderView') {}
+  find_cycle( $c, sub {
+      my ($path) = @_;
+      push @leaks, $path
+          if $path->[0]->[2] == $weak_ctx;
+  } );
+  return unless @leaks;
+  my $msg = "Circular reference detected";
+  $c->res->status(500);
+  $c->res->body($msg);
+}
 
 =head1 AUTHOR
 
