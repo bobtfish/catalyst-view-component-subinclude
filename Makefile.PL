@@ -21,6 +21,8 @@ requires 'URI';
 test_requires 'Test::More' => '0.88';
 test_requires 'Catalyst::View::TT';
 test_requires 'Catalyst::Action::RenderView';
+test_requires 'Scalar::Util';
+test_requires 'Devel::Cycle';
 
 author_requires 'Test::Pod::Coverage' => '1.04';
 author_requires 'Test::Pod' => '1.14';
